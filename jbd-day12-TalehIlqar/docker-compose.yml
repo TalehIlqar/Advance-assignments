@@ -1,0 +1,32 @@
+version: '3.1'
+
+services:
+
+  postgres:
+    container_name:  postgres
+    image:           postgres:13
+    restart: "on-failure"
+    ports:
+      - 5432:5432 # Bind host port 5432 to PostgreSQL port 5432
+    volumes:
+      - ./postgredb:/var/lib/postgresql/data
+    env_file: ./.env
+
+  app:
+    container_name: app
+    build: .
+    volumes:
+      - .:/app:rw
+    ports:
+      - 5000:5000
+    command: "flask run -h 0.0.0.0 -p 5000"
+    env_file: .env
+    restart: always
+    depends_on:
+      - "postgres"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
